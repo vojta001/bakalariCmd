@@ -1,0 +1,3 @@
+[submodule "bakalari"]
+	path = bakalari
+	url = git@github.com:vojta001/BakalariPy
