@@ -1,5 +1,6 @@
 from cmd import Cmd
 import getpass
+import six
 
 try:
 	from bakalari.bakalari import BakalariAPI
@@ -19,6 +20,22 @@ class MainPrompt(Cmd):
 	url = ""
 	api = None
 	marks = None
+
+	def parse_mark(mark):
+		if isinstance(mark, six.string_types):
+			if len(mark) == 0:
+				return float(0)
+			part = 0
+			if mark.endswith('-'):
+				part = 0.5
+				mark = mark[0:-1]
+			try:
+				fMark = float(mark)
+			except ValueError:
+				return float(0)
+			return fMark + part
+		else:
+			return float(0)
 
 	def get_api(self):
 		if self.api == None:
@@ -40,11 +57,33 @@ class MainPrompt(Cmd):
 	def do_update(self, args):
 		"""Flush the cache and download new marks"""
 		api = self.get_api()
-		self.marks = api.znamky()
+		self.marks = api.znamky()["predmet"]
 
 	def do_all(self, args):
 		"""Print summary of all marks"""
-		print(self.marks)
+		for subject in self.marks:
+			print(subject["zkratka"].upper(), end=": ")
+			wAvgSum = 0
+			wSum = 0
+			if subject["znamky"] != None:
+				marks = subject["znamky"]["znamka"]
+				for mark in marks:
+					value = MainPrompt.parse_mark(mark["znamka"])
+					if value == 0:
+						weight = 0
+					else:
+						weight = int(mark["vaha"])
+					wAvgSum += value * weight
+					wSum += weight
+					print("%s(%d)" % (mark["znamka"], weight), end=" ")
+			print("|", end=" ")
+			if "ctvrt" in subject and subject["ctvrt"] != None:
+				print("(%s)" % (subject["ctvrt"]), end="")
+			if wSum == 0:
+				wAvg = 0
+			else:
+				wAvg = round(wAvgSum / wSum, 2)
+			print(" %.2f" % (wAvg))
 
 
 if __name__ == '__main__':
