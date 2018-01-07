@@ -4,10 +4,12 @@ import getpass
 try:
 	from bakalari.bakalari import BakalariAPI
 except ImportError:
+	import sys
 	try:
-		from .bakalari.bakalari import BakalariAPI
+		import os
+		sys.path.insert(0, os.path.abspath("bakalari"))
+		from bakalari.bakalari import BakalariAPI
 	except ImportError:
-		import sys
 		print("*ERROR* `bakalari` module is missing")
 		sys.exit(1)
 
