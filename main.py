@@ -1,3 +1,4 @@
+from __future__ import print_function
 from cmd import Cmd
 import getpass
 import six
@@ -21,6 +22,7 @@ class MainPrompt(Cmd):
 	api = None
 	marks = None
 
+	@staticmethod
 	def parse_mark(mark):
 		if isinstance(mark, six.string_types):
 			if len(mark) == 0:
